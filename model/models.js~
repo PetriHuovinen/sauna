@@ -1,0 +1,1 @@
+Temperatures = new Mongo.Collection('temperatures');

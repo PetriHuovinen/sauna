@@ -1,0 +1,52 @@
+<template name="sauna">
+<div class="panel panel-default">
+<div class="panel-heading">
+<h3>Saunan lämpötilaseuranta</h3>
+</div>
+<div class="panel-body">
+<div class="col-md-4">
+<table class="table">
+<tr><td><h3>Lämpötila</h3></td><td><h3>{{temperature.temperature}} °C</h3></td></tr>
+<tr><td><h3>Trendi</h3></td><td><h3>{{trend}}</h3></td></tr>
+{{#if saunaValmis}}<tr><td><h3>Sauna +75 °C</h3></td><td><h3>{{saunaValmis}} min</h3></td></tr>{{/if}}
+</table>
+</div>
+
+<!--<p>Trendi laskettu edellisten 10 mittauksen ensimmäisen ja viimeisen mittauksen erotuksena, joten sen päivitys laahaa muutaman minuutin jäljessä.</p>
+<div class="table-responsive">
+<table class="table table-striped">
+<thead>
+<tr><th>Aika</th><th>Lämpötila</th></tr>
+</thead>
+<tbody>
+{{#each temperature}}
+<tr>
+<td>{{formatDate logged}}</td><td>{{this.temperature}}</td>
+</tr>
+
+{{/each}}
+</tbody>
+</table>
+</div>
+-->
+
+<div class="col-md-8">
+{{> graafit}}
+</div>
+</div>
+</div>
+</template>
+
+<template name="graafit">
+<!--<div class="panel panel-default">
+<div class="panel-heading">
+<h3>Lämpötilagraafit</h3>
+</div>
+<div class="panel-body">-->
+<h3>Edelliset 24h</h3>
+<div class="graph">
+<svg id="graafi24h"></svg>
+</div>
+<!--</div>
+</div>-->
+</template>
