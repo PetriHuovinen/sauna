@@ -1,9 +1,22 @@
-Meteor.publish('temperatures', function() {
-  var last24h = moment().subtract(24, 'hours').valueOf();
-//  var lämmöt = Temperatures.find({ logged : { $gte: last24h }}).fetch();
-//  console.log(lämmöt);
-  return Temperatures.find({ logged : { $gte: last24h }});
+Meteor.methods({
+  last24h : function() {
+    return koosta24h();
+  },
+  latest : function() {
+    return LatestTemperature.findOne();
+  }
 });
+
+koosta24h = function() {
+  var last24h = moment().subtract(24, 'hours').valueOf();
+  var lämmöt = Temperatures.find({logged : { $gte: last24h }}, { sort: { logged : -1 }}).fetch();
+  return lämmöt;
+}
+
+/*Meteor.publish('temperatures', function() {
+  var last24h = moment().subtract(24, 'hours').valueOf();
+  return Temperatures.find({ logged : { $gte: last24h }});
+});*/
 
 Meteor.publish('latestTemperature', function() {
   return LatestTemperature.find();
