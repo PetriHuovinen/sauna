@@ -99,15 +99,15 @@ Template.sauna.helpers({
             Session.set('saunaValmis', undefined);
             return "laskeva";
           } else if (first.temperature > last.temperature) {
-            // lasketaan vielä milloin saunassa on +70 astetta
+            // lasketaan vielä milloin saunassa on +65 astetta
             // lämpötila nousee noin 5,5 astetta 9min aikana.
             // minuutissa nousua tapahtuu noin 0,6 astetta.
-            if (first.temperature < 70) {
-              var erotus = 70 - first.temperature;
+            if (first.temperature < 65) {
+              var erotus = 65 - first.temperature;
               var aika = parseInt(erotus / 0.6);
-              Session.set('saunaValmis', aika);
+              Session.set('saunaValmis', aika + ' min');
             } else {
-              Session.set('saunaValmis', 0);
+              Session.set('saunaValmis', 'Lotisoo');
             }
             return "nouseva";
           } else {

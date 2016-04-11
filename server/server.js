@@ -16,6 +16,9 @@ Meteor.methods({
   },
   last30days : function() {
     return last30days();
+  },
+  viimeisinTrendi : function() { 
+    return Trend.find().fetch();
   }
 });
 
@@ -41,7 +44,7 @@ saveTemperatureToFile = function(trendi) {
     if ( err ) {
       console.log('virhe tiedostoa tallennettaessa! ' + err);
     } else {
-      console.log('lämpötilatiedot tallennettu tiedostoon.');
+      console.log('lämpötilatiedot', trendi, 'tallennettu tiedostoon.');
     }
   });
 }
@@ -59,9 +62,12 @@ Meteor.startup(function() {
   }).fetch();
   temperatures = lämmöt.slice(0,10);
   var trendi = trend(temperatures);
-  Trend.remove({});
-  Trend.insert(trendi);
-  saveTemperatureToFile(trendi);
+  if ( trendi ) {
+    Trend.remove({});
+    Trend.insert({ "trend": trendi.trend, "saunaReadyInMinutes" : trendi.saunaReadyInMinutes,
+      "currentTemperature" : trendi.currentTemperature, "logged" : trendi.logged });
+    saveTemperatureToFile(trendi);
+  }
 });
 
 LatestTemperature.find().observe({
@@ -72,33 +78,45 @@ LatestTemperature.find().observe({
     }
     
     var trendi = trend(temperatures);
-    Trend.remove({});
-    Trend.insert(trendi);
-    saveTemperatureToFile(trendi);
+    if ( trendi ) {
+      Trend.remove({});
+      Trend.insert({ "trend": trendi.trend, "saunaReadyInMinutes" : trendi.saunaReadyInMinutes,
+      "currentTemperature" : trendi.currentTemperature, "logged" : trendi.logged });
+
+      saveTemperatureToFile(trendi);
+    }
   }
 });
-
-
 
 trend = function(last10temperatures) {
   var first = last10temperatures[0];
   if (last10temperatures.length > 9) {
     var last = last10temperatures[9];
     if (first && last) {
+      var logged = moment().format('DD.MM.YYYY HH:mm');
+
       if (first.temperature < last.temperature) {
-        return { trend : "laskeva", saunaReadyInMinutes : null, currentTemperature : first.temperature, logged : first.logged};
+        var currentTemperature = first.temperature.toString();
+        currentTemperature = currentTemperature.replace('.', ',');
+        return { trend : "laskeva", saunaReadyInMinutes : "", currentTemperature : currentTemperature, logged : logged};
       } else if (first.temperature > last.temperature) {
         // lasketaan vielä milloin saunassa on +70 astetta
         // lämpötila nousee noin 5,5 astetta 9min aikana.
         // minuutissa nousua tapahtuu noin 0,6 astetta.
         var aika = 0;
-        if (first.temperature < 70) {
-          var erotus = 70 - first.temperature;
-          aika = parseInt(erotus / 0.6);
+        if (first.temperature < 65) {
+          var erotus = 65 - first.temperature;
+          aika = parseInt(erotus / 0.6).toString() + " min";
+        } else {
+          aika = "Lotisoo"; 
         }
-        return { trend : "nouseva", saunaReadyInMinutes : aika, currentTemperature : first.temperature, logged : first.logged};
+        var currentTemperature = first.temperature.toString();
+        currentTemperature = currentTemperature.replace('.', ',');
+        return { trend : "nouseva", saunaReadyInMinutes : aika, currentTemperature : currentTemperature, logged : logged};
       } else {
-        return { trend :"tasainen", saunaReadyInMinutes : null, currentTemperature : first.temperature, logged : first.logged};
+        var currentTemperature = first.temperature.toString();
+        currentTemperature = currentTemperature.replace('.', ',');
+        return { trend :"tasainen", saunaReadyInMinutes : "", currentTemperature : currentTemperature, logged : logged};
       }
     }
   }
@@ -149,4 +167,3 @@ last30days = function() {
 Meteor.publish('latestTemperature', function() {
   return LatestTemperature.find();
 });
-
